@@ -1,0 +1,195 @@
+# Danh sách checklist mặc định trước khi join dự án.
+# check_type: SOFTWARE | PORT_FREE | HOST_REACHABLE | WIFI | MANUAL
+# - required / mandatory: false => nếu fail chỉ hiện cảnh báo (warning).
+items:
+  # ---------- 1. Ứng dụng cần cài đặt ----------
+  - key: app_python
+    category: Ứng dụng cần cài đặt
+    title: Python >= 3.11
+    description: Ngôn ngữ chính của dự án (AI + xử lý hệ thống).
+    check_type: SOFTWARE
+    required: true
+    params:
+      name: Python
+      command: python
+      version_args: ["--version"]
+      min_version: "3.11"
+      hint: "Cài Python 3.11 và tick 'Add python.exe to PATH'."
+      install: { winget: "Python.Python.3.11", apt: "python3.11", brew: "python@3.11" }
+
+  - key: app_git
+    category: Ứng dụng cần cài đặt
+    title: Git >= 2.30
+    description: Quản lý source code.
+    check_type: SOFTWARE
+    required: true
+    params:
+      name: Git
+      command: git
+      version_args: ["--version"]
+      min_version: "2.30"
+      install: { winget: "Git.Git", apt: "git", brew: "git" }
+
+  - key: app_node
+    category: Ứng dụng cần cài đặt
+    title: Node.js >= 18
+    description: Dành cho Frontend developer.
+    check_type: SOFTWARE
+    required: false
+    params:
+      name: Node.js
+      command: node
+      version_args: ["--version"]
+      min_version: "18.0"
+      install: { winget: "OpenJS.NodeJS.LTS", apt: "nodejs", brew: "node" }
+
+  - key: app_docker
+    category: Ứng dụng cần cài đặt
+    title: Docker >= 24
+    description: Chạy các microservices cục bộ.
+    check_type: SOFTWARE
+    required: false
+    params:
+      name: Docker
+      command: docker
+      version_args: ["--version"]
+      min_version: "24.0"
+      install: { winget: "Docker.DockerDesktop", apt: "docker.io", brew: "docker" }
+
+  - key: app_ollama
+    category: Ứng dụng cần cài đặt
+    title: Ollama
+    description: Chạy mô hình Qwen-2.5 offline cho AI Buddy.
+    check_type: SOFTWARE
+    required: true
+    params:
+      name: Ollama
+      command: ollama
+      version_args: ["--version"]
+      min_version: "0.3"
+      hint: "Sau khi cài, chạy: ollama pull qwen2.5:7b  &&  ollama pull bge-m3"
+      install: { winget: "Ollama.Ollama", brew: "ollama" }
+
+  # ---------- 2. Quyền truy cập IP / mạng ----------
+  - key: net_wifi
+    category: Quyền truy cập IP & mạng
+    title: Kết nối Wi-Fi
+    description: Kiểm tra Wi-Fi cục bộ; máy dùng mạng dây có thể bỏ qua cảnh báo này.
+    check_type: WIFI
+    required: false
+    params: {}
+
+  - key: net_ollama
+    category: Quyền truy cập IP & mạng
+    title: Ollama service (localhost:11434)
+    description: Dịch vụ LLM local phải đang chạy.
+    check_type: HOST_REACHABLE
+    required: true
+    params:
+      host: 127.0.0.1
+      port: 11434
+      hint: "Mở Ollama hoặc chạy 'ollama serve'."
+
+  - key: net_git_server
+    category: Quyền truy cập IP & mạng
+    title: Git server nội bộ (git.company.local:443)
+    description: Quyền truy cập repo của dự án. Đổi host cho đúng dự án.
+    check_type: HOST_REACHABLE
+    required: false
+    params:
+      host: git.company.local
+      port: 443
+      hint: "Bật VPN công ty hoặc xin cấp quyền IP theo quy trình trong documents/onboarding."
+
+  - key: net_db_dev
+    category: Quyền truy cập IP & mạng
+    title: Database dev (db.company.local:5432)
+    description: Quyền truy cập DB môi trường dev. Đổi host cho đúng dự án.
+    check_type: HOST_REACHABLE
+    required: false
+    params:
+      host: db.company.local
+      port: 5432
+      hint: "Xin cấp quyền IP của máy bạn cho DB dev (xem quy trình xin cấp quyền IP)."
+
+  # ---------- 3. Port có bị trùng không ----------
+  - key: port_8000
+    category: Kiểm tra port
+    title: Port 8000 còn trống (Backend API)
+    description: Port mặc định của backend khi chạy local.
+    check_type: PORT_FREE
+    required: true
+    params: { port: 8000, hint: "Tắt tiến trình đang dùng port: netstat -ano | findstr :8000" }
+
+  - key: port_3000
+    category: Kiểm tra port
+    title: Port 3000 còn trống (Frontend dev server)
+    description: Port mặc định của frontend dev server.
+    check_type: PORT_FREE
+    required: false
+    params: { port: 3000 }
+
+  - key: port_8080
+    category: Kiểm tra port
+    title: Port 8080 còn trống (API Gateway)
+    description: Port của gateway trong kiến trúc microservices.
+    check_type: PORT_FREE
+    required: false
+    params: { port: 8080 }
+
+  # ---------- 4. Training dự án (xác nhận thủ công) ----------
+  - key: train_goal
+    category: Training dự án
+    title: Đã nắm mục tiêu dự án
+    description: Đọc documents/onboarding/project_goals.md
+    check_type: MANUAL
+    required: true
+    params: {}
+
+  - key: train_team
+    category: Training dự án
+    title: Đã biết thông tin thành viên
+    description: Đọc documents/onboarding/team_members.md
+    check_type: MANUAL
+    required: true
+    params: {}
+
+  - key: train_timeline
+    category: Training dự án
+    title: Đã xem Timeline dự án
+    description: Đọc documents/onboarding/timeline.md
+    check_type: MANUAL
+    required: true
+    params: {}
+
+  - key: train_rules
+    category: Training dự án
+    title: Đã đọc rule dự án
+    description: Đọc documents/onboarding/project_rules.md
+    check_type: MANUAL
+    required: true
+    params: {}
+
+  - key: train_ip_process
+    category: Training dự án
+    title: Đã biết quy trình xin cấp quyền IP
+    description: Đọc documents/onboarding/ip_access_process.md
+    check_type: MANUAL
+    required: true
+    params: {}
+
+  - key: train_arch
+    category: Training dự án
+    title: Đã xem mô hình kiến trúc (Microservices)
+    description: Đọc documents/onboarding/architecture.md
+    check_type: MANUAL
+    required: false
+    params: {}
+
+  - key: train_ask_first
+    category: Training dự án
+    title: Đã hiểu nguyên tắc "hỏi trước khi thực thi"
+    description: AI Buddy chỉ chạy lệnh cài đặt sau khi bạn xác nhận.
+    check_type: MANUAL
+    required: true
+    params: {}

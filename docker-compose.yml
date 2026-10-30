@@ -1,0 +1,58 @@
+# Dev chỉ DB: docker compose up -d db
+# Server backend + DB: docker compose up -d --build backend
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: aibuddy-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aibuddy}
+      POSTGRES_USER: ${POSTGRES_USER:-aibuddy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aibuddy}
+    ports:
+      - "${POSTGRES_PUBLISH_HOST:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aibuddy} -d ${POSTGRES_DB:-aibuddy}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: aibuddy-backend:latest
+    container_name: aibuddy-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      API_HOST: 0.0.0.0
+      LOCAL_API_PORT: 8765
+      DATA_DIR: /app/data
+      INSTALLER_PREFIX: /app/data/installers
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-aibuddy}
+      POSTGRES_USER: ${POSTGRES_USER:-aibuddy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aibuddy}
+      OLLAMA_BASE_URL: ${BACKEND_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:7b}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-bge-m3}
+    ports:
+      - "${BACKEND_PUBLISH_HOST:-127.0.0.1}:${BACKEND_PORT:-8765}:8765"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - backend_data:/app/data
+      - backend_logs:/app/logs
+      - backend_documents:/app/documents
+
+volumes:
+  pgdata:
+  backend_data:
+  backend_logs:
+  backend_documents:

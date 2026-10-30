@@ -1,0 +1,20 @@
+# Cấu hình LLM chạy local qua Ollama (offline)
+ollama:
+  base_url: http://localhost:11434
+
+llm:
+  model: qwen2.5:7b        # ollama pull qwen2.5:7b
+  temperature: 0.2
+  num_ctx: 2048            # 2048 tokens tối ưu bộ nhớ & tăng tốc đọc prompt
+  num_predict: 512         # Giới hạn tối đa 512 tokens để phản hồi nhanh, súc tích
+  num_thread: 8            # Tối ưu 8 luồng cho CPU Intel Core i5-1240P (tận dụng tối đa P-cores)
+  request_timeout: 120
+
+embedding:
+  model: bge-m3            # ollama pull bge-m3 (đa ngôn ngữ, hỗ trợ tiếng Việt)
+
+rag:
+  collection: aibuddy_docs
+  chunk_size: 1500         # ~700 tokens đa ngôn ngữ
+  chunk_overlap: 150
+  top_k: 4
